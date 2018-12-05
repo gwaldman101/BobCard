@@ -1,18 +1,16 @@
-{% extends 'music/base.html' %}
-
+ {% extends 'music/base.html' %}
+{% load qr_code %}
 {% block body %}
-  {% if object_list %}
+ {% if object_list %}
+ <div style="width:800px; margin:0 auto;">
+  <h1>Welcome to the BobCard</h1>
 
-    <h3>Here are all my albums:</h3>
-    <ul>
-      {% for album in object_list %}
-      <li><a href='{% url 'music:detail' album.id %}'>{{album.album_title}}</a></li>
-      {% endfor %}
-    </ul>
-
-  {% else %}
-
-    <h3>No albums added</h3>
-
+  <p>Want to enter a room</p>
+   {% for album in object_list %}
+   <input type="button" onclick="location.href='{% url 'music:detail' album.id %}';" value="Enter Class Room" />
+    {% endfor %}
+</div>
   {% endif %}
 {% endblock %}
+
+

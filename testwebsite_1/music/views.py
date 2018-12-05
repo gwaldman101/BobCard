@@ -1,5 +1,7 @@
 from django.views import generic
 from .models import Album
+from django.shortcuts import render
+from qr_code.qrcode.utils import QRCodeOptions
 
 class IndexView(generic.ListView):
     template_name = 'music/index.html'
@@ -11,8 +13,14 @@ class DetailView(generic.DetailView):
     model = Album
     template_name = 'music/detail.html'
 
+def myview(request):
+    # Build context for rendering QR codes.
+    context = dict(
+        my_options=QRCodeOptions(size='t', border=6, error_correction='L'),
+    )
 
-
+    # Render the view.
+    return render(request, 'music/index.html', context=context)
 
 
 
