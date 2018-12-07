@@ -19,14 +19,14 @@ def index(request):
     #### REDIRECT TO ACCEPT PAGE
 ## IF NOT IN REDIS redicrect to deny page
 # Posgress permanent
-when fetch value 
-- take value from redis, 
-- not searching in posgres
-- use REdis short term storage:
-- if redis does not return then 
+# when fetch value 
+# - take value from redis, 
+# - not searching in posgres
+# - use REdis short term storage:
+# - if redis does not return then 
 
-trigger on when datetime.now() = requested + entry_time
-pub/sub 
+# trigger on when datetime.now() = requested + entry_time
+# pub/sub 
 
 def request_access(request, pk):
     """View function for renewing a specific StudentEntry by librarian."""

@@ -43,4 +43,4 @@ class Location(models.Model):
     
 
 
-//bobcard/student_id/location/time-requested
+#//bobcard/student_id/location/time-requested
