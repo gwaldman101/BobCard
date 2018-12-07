@@ -7,7 +7,11 @@
 
   <p>Want to enter a room</p>
    {% for album in object_list %}
-   <input type="button" onclick="location.href='{% url 'music:detail' album.id %}';" value="Enter Class Room" />
+   <!-- <form action="" method="post"> -->
+    <input type="text" placeholder="Location" name="location">
+    <input type="text" placeholder="For how long" name="time">
+   <input type="submit" onclick="location.href='{% url 'music:detail' album.id %}';" value="Enter Class Room" />
+<!--  </form> -->
     {% endfor %}
 </div>
   {% endif %}
