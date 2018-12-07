@@ -30,5 +30,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('home/', include('nyu_bobcard.urls')),
     path('', RedirectView.as_view(url='/home/', permanent=True))
+    
 ] +static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 

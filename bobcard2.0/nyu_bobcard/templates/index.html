@@ -1,11 +1,20 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-  <h1>Local Library Home</h1>
-  <p>Welcome to LocalLibrary, a website developed by <em>Mozilla Developer Network</em>!</p>
-  <h2>Dynamic content</h2>
-  <p>The library has the following record counts:</p>
-  <ul>
-    <li><strong>Hi {{name}}</strong> </li>
-  </ul>
+ 
+ <div style="width:800px; margin:0 auto;">
+  <h1>Welcome to the BobCard</h1>
+
+  <p>Want to enter a room</p>
+
+   <form action="code/" method="POST">
+   	{% csrf_token %} 
+   	<input type="text" placeholder="NetID" name="id">
+    <input type="text" placeholder="Location" name="location">
+    <input type="text" placeholder="For how long" name="time">
+   <input type="submit"  value="Enter Class Room" />
+ </form>
+
+</div>
+   
 {% endblock %}

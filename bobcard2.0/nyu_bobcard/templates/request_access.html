@@ -1,15 +1,7 @@
 {% extends "base_generic.html" %}
-
+{% load qr_code %}
 {% block content %}
-  <h1>Entry Time: {{ student_entry.entry_time }}</h1>
-  <p>Location: {{ student_entry.requested_location }}</p>
-    <p>Duration: {{ student_entry.requested_time }}</p>
 
-  <form action="" method="post">
-    {% csrf_token %}
-    <table>
-    {{ form.as_table }}
-    </table>
-    <input type="submit" value="Submit">
-  </form>
+ <h1>Lets render the code</h1>
+ {% qr_from_text "{{name}}" size="m" error_correction="L" %}
 {% endblock %}

@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     ### need to add, references config in nyu_bobcard/apps.py
-    'nyu_bobcard.apps.NyuBobcardConfig'
+    'nyu_bobcard.apps.NyuBobcardConfig',
+    'qr_code'
 ]
 
 MIDDLEWARE = [
