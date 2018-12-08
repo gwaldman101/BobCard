@@ -9,12 +9,5 @@ urlpatterns = [
 #    path('hello/<uuid:pk>', views.request_access, name='request-access')
 	path('code/', views.request_access, name='code'), 
     ## TODO:: change int to uuid
-	path('authorize/<slug:location>/<slug:net_id>/<slug:time>', views.authorize, name='authorize'), 
 
 ]
-#http://127.0.0.1:8000/home/hello
-# urlpatterns += [   
-#     path('/hello', views.request_access, name='request-access'),
-# ]
-
-#ps auxw | grep runserver

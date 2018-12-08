@@ -1,8 +1,11 @@
 {% extends "base_generic.html" %}
 {% load qr_code %}
+ <div style="width:800px; margin:0 auto;">
+
 {% block content %}
 
  <h1>Lets render the code</h1>
  {% qr_from_text name size="m" error_correction="L" %}
- <h2>Valid until :{{valid}}</h2>
+ <h2>Valid until: {{valid}}</h2>
 {% endblock %}
+ <div style="width:800px; margin:0 auto;">
