@@ -122,6 +122,8 @@ def request_access(request):
     # else:
     #     proposed_date = datetime.date.today() + datetime.timedelta(days=3)
     #     form = RequestAccessForm(initial={'requested_location': 'Bobst','requested_time':proposed_date })
+    #http://35.237.10.156:8000/home/?fbclid=IwAR1w5bKz9S0SDj3zTFiPtjNMpwrPAop7CIkxfRbf6i-PQ6g7A8vTOwP8tRU
+    name = "http://35.237.10.156:8000/home/?fbclid=IwAR1w5bKz9S0SDj3zTFiPtjNMpwrPAop7CIkxfRbf6i-PQ6g7A8vTOwP8tRU"
     return render(request,
      'request_access.html',context={
          'name': name, 
