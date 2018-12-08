@@ -69,7 +69,6 @@ def request_access(request):
         student = Student.objects.get(net_id = name)
     else:
         student = Student.objects.create(net_id = name)
-        student.location.set([location])
 
         
     start = datetime.datetime.now()
@@ -80,9 +79,8 @@ def request_access(request):
     print(end.time())
     student = Student.objects.get(net_id = name)
     student_entry = StudentEntry(
-            net_id = name,
+            net_id = student,
             entry_time = start,
-            student = student, 
             end_time = end,
             requested_location = location
         )
@@ -90,7 +88,7 @@ def request_access(request):
 
     student_entry.save()
     print('Student', StudentEntry.objects.count())
-
+    
     # If this is a POST request then process the Form data
     # if request.method == 'POST':
     #     print("heyyyyyyyyyy")

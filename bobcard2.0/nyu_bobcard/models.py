@@ -11,8 +11,8 @@ from django.contrib.auth.models import User  # Required to assign User as a borr
 class StudentEntry(models.Model):
     # need a primary key
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    net_id = models.CharField( max_length=50)
-    student = models.ForeignKey("Student", on_delete=models.CASCADE) # if student gets deleted we delete this as well
+    #net_id = models.CharField( max_length=50)
+    net_id = models.ForeignKey("Student", on_delete=models.CASCADE) # if student gets deleted we delete this as well
     entry_time = models.DateTimeField(default=datetime.now, blank=True)
     end_time = models.DateTimeField(auto_now=False, auto_now_add=False)
     requested_location = models.ForeignKey("Location", on_delete=models.SET_NULL, null=True) # should this be like a foreign field?
@@ -23,17 +23,17 @@ class StudentEntry(models.Model):
 
     def __str__(self):
         """String for representing the Model object."""
-        return '{0} ({1})'.format(self.student, self.requested_location)
+        return '{0} ({1})'.format(self.net_id, self.requested_location)
 
 class Student(models.Model):
 
    # user = models.OneToOneField(User, on_delete=models.CASCADE)
-    location = models.ManyToManyField("Location")
+
     net_id = models.CharField( max_length=50, primary_key=True)
    # id = models.CharField(max_length=50, primary_key=True) # unique enuf
 
     def __str__(self):
-        return self.name
+        return self.net_id
 
 class Location(models.Model):
     location_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
