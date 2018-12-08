@@ -2,6 +2,7 @@ from django.shortcuts import render
 from .models import Student, StudentEntry, Location
 from django.views import generic
 from django import forms
+from django.utils import timezone
 from django.shortcuts import get_object_or_404
 import datetime
 from django.shortcuts import render
@@ -38,6 +39,9 @@ def authorize(request, location,net_id, time ):
     # save in posgres
     print("nn authorize")
     #location_to_id = [{}]
+
+    #if not in cache and not in db then no access
+    
     already_authorized = StudentEntry.objects.filter(net_id=net_id).exists()
     if(already_authorized):
         # entry exists:
@@ -71,7 +75,7 @@ def request_access(request):
         student = Student.objects.create(net_id = name)
 
         
-    start = datetime.datetime.now()
+    start =timezone.localtime(timezone.now())
 #    a = datetime.datetime(100,1,1,11,34,59)
     seconds = int(time) * 60
     end = start + datetime.timedelta(0,seconds) # days, seconds, then other fields.
@@ -87,8 +91,10 @@ def request_access(request):
     print('Before', StudentEntry.objects.count())
 
     student_entry.save()
+    delete_entry(student_entry.net_id.net_id,schedule=10 )
     print('Student', StudentEntry.objects.count())
-    
+    #https://stackoverflow.com/questions/11788821/best-way-to-delete-a-django-model-instance-after-a-certain-date
+
     # If this is a POST request then process the Form data
     # if request.method == 'POST':
     #     print("heyyyyyyyyyy")
@@ -140,5 +146,14 @@ def myview(request):
     return render(request, 'home/index.html', {'form': form, 'student_entry':student_entry}, context=context)
     
 
-# class AuthorizePage(forms.Form):
-#     entry_requ
+# cron job
+from background_task import background
+from .models import StudentEntry
+
+@background(schedule=5)
+def delete_entry(entry_id):
+    # lookup user by id and send them a message
+    # user = User.objects.get(pk=user_id)
+    # user.email_user('Here is a notification', 'You have been notified')
+    StudentEntry.objects.filter(net_id = entry_id).delete()
+    print("hello")
