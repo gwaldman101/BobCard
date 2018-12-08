@@ -39,10 +39,17 @@ def request_access(request):
     context = dict(
         my_options=QRCodeOptions(size='t', border=6, error_correction='L'),
     )
-    
-    name = request.POST.get("id")
-    location = request.POST.get("location")
+
+    name = request.POST.get("id"),
+    location = request.POST.get("location"),
     time = request.POST.get("time")
+
+    name = "violet"
+    student_data = {
+        name : name,
+        location :location,
+        time : time,
+    }
     # If this is a POST request then process the Form data
     # if request.method == 'POST':
     #     print("heyyyyyyyyyy")
@@ -71,8 +78,8 @@ def request_access(request):
     #     proposed_date = datetime.date.today() + datetime.timedelta(days=3)
     #     form = RequestAccessForm(initial={'requested_location': 'Bobst','requested_time':proposed_date })
     return render(request,
-     'request_access.html',context={
-         'name': name
+     'request_access.html', context = {
+         'name': 'kalea'
      } )
 
     # # If this is a GET (or any other method) create the default form
@@ -81,6 +88,20 @@ def request_access(request):
     #     'form': form,
     #     'student_entry': student_entry,
     # }
+
+def scanned_qr(request, location_id, netid):
+    print(location_id)
+    print(netid)
+
+    #if the user is in the system for that location
+    already_authorized = StudentEntry.objects.filter(net_id=netid).exists()
+    if(already_authorized):
+        return render(request, 'success.html')
+    else:
+        return render(request, 'fail.html')
+
+
+
 
 
 def myview(request):
