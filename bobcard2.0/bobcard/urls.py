@@ -1,3 +1,7 @@
+from django.conf.urls import url
+
+# everything above this line is imports that I added for the tutorial: https://code.tutsplus.com/tutorials/how-to-cache-using-redis-in-django-applications--cms-30178
+
 """bobcard URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
@@ -29,7 +33,9 @@ from django.views.generic import RedirectView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('home/', include('nyu_bobcard.urls')),
-    path('', RedirectView.as_view(url='/home/', permanent=True))
+    path('', RedirectView.as_view(url='/home/', permanent=True)),
+    #url(r'^admin/', admin.site.urls),
+    #url(r'^store/', include('store.urls'))
     
 ] +static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 

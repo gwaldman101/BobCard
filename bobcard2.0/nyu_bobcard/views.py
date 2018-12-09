@@ -1,3 +1,17 @@
+#from django.shortcuts import render
+#from rest_framework.decorators import api_view
+#from rest_framework.response import Response
+#from rest_framework import status
+from django.core.cache import cache
+from django.conf import settings
+from django.core.cache.backends.base import DEFAULT_TIMEOUT
+
+from django.views.decorators.cache import cache_page
+
+CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
+
+# everything above this line is imports that I added for the tutorial: https://code.tutsplus.com/tutorials/how-to-cache-using-redis-in-django-applications--cms-30178
+
 from django.shortcuts import render
 from .models import Student, StudentEntry, Location
 from django.views import generic
@@ -33,8 +47,31 @@ def index(request):
 # trigger on when datetime.now() = requested + entry_time
 # pub/sub 
 
-
+@cache_page(CACHE_TTL)
 def authorize(request, location,net_id, time ):
+
+    print("authorizing")
+
+    comp_key = net_id + location
+
+    if comp_key in cache:
+        print('Found in cache')
+        return render(request, 'accept.html', context={'net_id': cache.get(comp_key)})
+    else:
+        entry = StudentEntry.objects.filter(net_id = net_id)
+        already_authorized = StudentEntry.objects.filter(net_id = net_id).exists()
+        if(already_authorized):
+            print('Found in database but not in cache')
+            cache.set(comp_key, entry, timeout=CACHE_TTL)
+            return render(request, 'accept.html', context={'net_id': entry})
+        else:
+            print('Not found anywhere')
+            return render(request, 'accept.html', context={'net_id': 'unauthorized'})
+
+
+
+
+def authorizeWithoutCache(request, location,net_id, time ):
     # save in posgres
     print("nn authorize")
     #location_to_id = [{}]
@@ -53,6 +90,11 @@ def authorize(request, location,net_id, time ):
         return render(request,'authorize.html',context={'net_id': net_id})
 
 
+
+
+
+
+@cache_page(CACHE_TTL)
 def request_access(request):
     """View function for renewing a specific StudentEntry by librarian."""
     print("we made it,yayy")
@@ -88,6 +130,12 @@ def request_access(request):
 
     student_entry.save()
     print('Student', StudentEntry.objects.count())
+
+    
+    comp_key = name + request.POST.get("location")
+    comp_value = name + " is authorized"
+    cache.set(comp_key, comp_value, timeout=CACHE_TTL)
+    print('added key:value to cache')
     
     # If this is a POST request then process the Form data
     # if request.method == 'POST':
@@ -142,3 +190,24 @@ def myview(request):
 
 # class AuthorizePage(forms.Form):
 #     entry_requ
+
+
+
+'''
+def view_books(request):
+    locations = Location.objects.all()
+    results = [location.to_json() for location in locations]
+    return render
+
+
+
+api_view(['GET'])
+def view_books(request):
+     
+    #products = Product.objects.all()
+    locations = Location.objects.all()
+    #results = [product.to_json() for product in products]
+    results = [location.to_json() for location in locations]
+    #return Response(results, status=status.HTTP_201_CREATED)
+    return Response(results, status=status.HTTP_201_CREATED)
+'''
