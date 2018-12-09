@@ -32,29 +32,6 @@ def index(request):
 # trigger on when datetime.now() = requested + entry_time
 # pub/sub 
 
-
-def authorize(request, location,net_id, time ):
-    # save in posgres
-    print("nn authorize")
-    #location_to_id = [{}]
-
-    #if not in cache and not in db then no access
-    
-    already_authorized = StudentEntry.objects.filter(net_id=net_id).exists()
-    if(already_authorized):
-        # entry exists:
-        return render(request,'accept.html',context={'net_id': net_id})
-    else:
-        # add them to database:
-
-
-
-        print("?")
-
-    #return render(request,'authorize.html',context={'net_id': net_id,'location': location,'time_requested': time_requested})
-        return render(request,'authorize.html',context={'net_id': net_id})
-
-
 def request_access(request):
     context = dict(
         my_options=QRCodeOptions(size='t', border=6, error_correction='L'),
