@@ -8,7 +8,6 @@ import datetime
 from django.shortcuts import render
 from qr_code.qrcode.utils import QRCodeOptions
 # Create your views here.
-from .forms import RequestAccessForm
 def index(request):
 
     """View function for home page of site."""
@@ -60,11 +59,12 @@ def request_access(request):
     context = dict(
         my_options=QRCodeOptions(size='t', border=6, error_correction='L'),
     )
-    
-    name = request.POST.get("id")
+
+    name = request.POST.get("id"),
     location = request.POST.get("location")
+    location = location.strip(",()")
     time = request.POST.get("time")
-    location = Location.objects.get(name = location)
+    location = Location.objects.get(name=location)
     if (Student.objects.filter(net_id = name).exists()):
         student = Student.objects.get(net_id = name)
     else:
@@ -92,6 +92,21 @@ def request_access(request):
          'name': name, 
          'valid':end.time()
      })
+
+def scanned_qr(request, location_id, netid):
+    print(location_id)
+    print(netid)
+
+    #if the user is in the system for that location
+    already_authorized = StudentEntry.objects.filter(net_id=netid).exists()
+    if(already_authorized):
+        return render(request, 'success.html')
+    else:
+        return render(request, 'fail.html')
+
+
+
+
 
 def myview(request):
     # Build context for rendering QR codes.
