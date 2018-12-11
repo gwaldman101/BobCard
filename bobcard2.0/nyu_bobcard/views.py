@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404
 import datetime
 from django.shortcuts import render
 from qr_code.qrcode.utils import QRCodeOptions
+from django.shortcuts import redirect
 # Create your views here.
 def index(request):
 
@@ -37,11 +38,23 @@ def request_access(request):
         my_options=QRCodeOptions(size='t', border=6, error_correction='L'),
     )
 
-    name = request.POST.get("id"),
+    name = request.POST.get("id")
     location = request.POST.get("location")
-    location = location.strip(",()")
+   
+
     time = request.POST.get("time")
+    location_exists = Location.objects.filter(name=location).exists()
+    if location is None or name is None: 
+        return redirect('/home')
+    name = name.strip(",()")
+    location = location.strip(",()")
     location = Location.objects.get(name=location)
+
+
+        
+
+
+
     if (Student.objects.filter(net_id = name).exists()):
         student = Student.objects.get(net_id = name)
     else:
@@ -51,19 +64,21 @@ def request_access(request):
     start =timezone.localtime(timezone.now())
     seconds = int(time) * 60
     end = start + datetime.timedelta(0,seconds) # days, seconds, then other fields.
-    print(start.time())
-    print(end.time())
-    student = Student.objects.get(net_id = name)
     student_entry = StudentEntry(
             net_id = student,
             entry_time = start,
             end_time = end,
             requested_location = location
-        )
+    )
     student_entry.save()
     delete_entry(student_entry.net_id.net_id,schedule=end )
-   
-    name = "http://35.237.10.156:8000/home/?fbclid=IwAR1w5bKz9S0SDj3zTFiPtjNMpwrPAop7CIkxfRbf6i-PQ6g7A8vTOwP8tRU"
+    
+    loc_id =location.location_id
+    
+
+    #name = "http://35.237.10.156:8000/home/?fbclid=IwAR1w5bKz9S0SDj3zTFiPtjNMpwrPAop7CIkxfRbf6i-PQ6g7A8vTOwP8tRU"
+    name = "http://127.0.0.1:8000/home/authorize/" + str(loc_id) +  "/" + str(name)
+    print(name)
     return render(request,
      'request_access.html',context={
          'name': name, 
@@ -71,12 +86,14 @@ def request_access(request):
      })
 
 def scanned_qr(request, location_id, netid):
+    print("IN SCANNED")
     print(location_id)
     print(netid)
 
     #if the user is in the system for that location
-    already_authorized = StudentEntry.objects.filter(net_id=netid).exists()
-    if(already_authorized):
+    exists = StudentEntry.objects.filter(net_id=netid, requested_location_id = location_id).exists()
+
+    if exists:
         return render(request, 'success.html')
     else:
         return render(request, 'fail.html')
