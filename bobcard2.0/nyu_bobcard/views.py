@@ -21,7 +21,6 @@ import datetime
 from django.shortcuts import render
 from qr_code.qrcode.utils import QRCodeOptions
 # Create your views here.
-from .forms import RequestAccessForm
 def index(request):
 
 
@@ -33,22 +32,9 @@ def index(request):
      context={
          'name': name
      })
-#### ON POST:
-### IF IN REDIS LIST: 
-    #### REDIRECT TO ACCEPT PAGE
-## IF NOT IN REDIS redicrect to deny page
-# Posgress permanent
-# when fetch value 
-# - take value from redis, 
-# - not searching in posgres
-# - use REdis short term storage:
-# - if redis does not return then 
-
-# trigger on when datetime.now() = requested + entry_time
-# pub/sub 
 
 @cache_page(CACHE_TTL)
-def authorize(request, location,net_id, time ):
+def authorize(request, location,net_id ):
 
     print("authorizing")
 
@@ -56,17 +42,18 @@ def authorize(request, location,net_id, time ):
 
     if comp_key in cache:
         print('Found in cache')
-        return render(request, 'accept.html', context={'net_id': cache.get(comp_key)})
+        return render(request, 'success.html')
     else:
-        entry = StudentEntry.objects.filter(net_id = net_id)
-        already_authorized = StudentEntry.objects.filter(net_id = net_id).exists()
+        already_authorized = StudentEntry.objects.filter(net_id=netid, requested_location_id = location_id).exists()
+
+  
         if(already_authorized):
             print('Found in database but not in cache')
             cache.set(comp_key, entry, timeout=CACHE_TTL)
-            return render(request, 'accept.html', context={'net_id': entry})
+            return render(request, 'success.html')
         else:
             print('Not found anywhere')
-            return render(request, 'accept.html', context={'net_id': 'unauthorized'})
+            return render(request, 'fail.html')
 
 
 
@@ -75,19 +62,12 @@ def authorizeWithoutCache(request, location,net_id, time ):
     # save in posgres
     print("nn authorize")
     #location_to_id = [{}]
-    already_authorized = StudentEntry.objects.filter(net_id=net_id).exists()
+    already_authorized = StudentEntry.objects.filter(net_id=netid, requested_location_id = location_id).exists()
     if(already_authorized):
         # entry exists:
-        return render(request,'accept.html',context={'net_id': net_id})
+        return render(request, 'success.html')
     else:
-        # add them to database:
-
-
-
-        print("?")
-
-    #return render(request,'authorize.html',context={'net_id': net_id,'location': location,'time_requested': time_requested})
-        return render(request,'authorize.html',context={'net_id': net_id})
+        return render(request, 'fail.html')
 
 
 
@@ -106,64 +86,37 @@ def request_access(request):
     name = request.POST.get("id")
     location = request.POST.get("location")
     time = request.POST.get("time")
-    location = Location.objects.get(name = location)
+    if location is None or name is None: 
+        return redirect('/home')
+    name = name.strip(",()")
+    location = location.strip(",()")
+    location = Location.objects.get(name=location)
     if (Student.objects.filter(net_id = name).exists()):
         student = Student.objects.get(net_id = name)
     else:
         student = Student.objects.create(net_id = name)
 
-        
-    start = datetime.datetime.now()
-#    a = datetime.datetime(100,1,1,11,34,59)
+    start =timezone.localtime(timezone.now())
     seconds = int(time) * 60
-    end = start + datetime.timedelta(0,seconds) # days, seconds, then other fields.
-    print(start.time())
-    print(end.time())
-    student = Student.objects.get(net_id = name)
+    end = start + datetime.timedelta(0,seconds) # days, seconds, then other fields.ts.get(net_id = name)
     student_entry = StudentEntry(
             net_id = student,
             entry_time = start,
             end_time = end,
             requested_location = location
         )
-    print('Before', StudentEntry.objects.count())
-
+    # add to db
     student_entry.save()
-    print('Student', StudentEntry.objects.count())
-
+    delete_entry(student_entry.net_id.net_id,schedule=end )
+    loc_id =location.location_id
     
     comp_key = name + request.POST.get("location")
     comp_value = name + " is authorized"
     cache.set(comp_key, comp_value, timeout=CACHE_TTL)
     print('added key:value to cache')
-    
-    # If this is a POST request then process the Form data
-    # if request.method == 'POST':
-    #     print("heyyyyyyyyyy")
-    #     # Create a form instance and populate it with data from the request (binding):
-    #     form = RequestAccessForm(request.POST)
-    #     # key , value, location time,
-    #     #take last location
 
-    #     # Check if the form is valid:   
-    #         # process the data in form.cleaned_data as required (here we just write it to the model due_back field)
-    #     student_entry.requested_location = form.cleaned_data['requested_location']
-    #     student_entry.requested_time = form.cleaned_data['requested_time']
-        
-    #     #save ti redus
-    #     #qr-> db, not present then insert, if present, then authorized = true, a
-    #     # authorized 
-    #         # if authorized then don't save, else save;
-    #         # reading 
-    #         # directly write a query with \timing 
-            
-    #     student_entry.save()
-
-    #         # redirect to a new URL:
-    #     return HttpResponseRedirect(reverse('') )
-    # else:
-    #     proposed_date = datetime.date.today() + datetime.timedelta(days=3)
-    #     form = RequestAccessForm(initial={'requested_location': 'Bobst','requested_time':proposed_date })
+    name = "http://127.0.0.1:8000/home/authorize/" + str(loc_id) +  "/" + str(name)
+    print(name)
     return render(request,
      'request_access.html',context={
          'name': name, 
@@ -176,6 +129,19 @@ def request_access(request):
     #     'form': form,
     #     'student_entry': student_entry,
     # }
+def scanned_qr(request, location_id, netid):
+    print("IN SCANNED")
+    print(location_id)
+    print(netid)
+
+    #if the user is in the system for that location
+    exists = StudentEntry.objects.filter(net_id=netid, requested_location_id = location_id).exists()
+
+    if exists:
+        return render(request, 'success.html')
+    else:
+        return render(request, 'fail.html')
+
 
 
 def myview(request):
@@ -188,26 +154,11 @@ def myview(request):
     return render(request, 'home/index.html', {'form': form, 'student_entry':student_entry}, context=context)
     
 
-# class AuthorizePage(forms.Form):
-#     entry_requ
+# background job
+from background_task import background
+from .models import StudentEntry
 
+@background(schedule=5)
+def delete_entry(entry_id):
 
-
-'''
-def view_books(request):
-    locations = Location.objects.all()
-    results = [location.to_json() for location in locations]
-    return render
-
-
-
-api_view(['GET'])
-def view_books(request):
-     
-    #products = Product.objects.all()
-    locations = Location.objects.all()
-    #results = [product.to_json() for product in products]
-    results = [location.to_json() for location in locations]
-    #return Response(results, status=status.HTTP_201_CREATED)
-    return Response(results, status=status.HTTP_201_CREATED)
-'''
+    StudentEntry.objects.filter(net_id = entry_id).delete()

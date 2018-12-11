@@ -5,16 +5,21 @@
  <div style="width:800px; margin:0 auto;">
   <h1>Welcome to the BobCard</h1>
 
-  <p>Want to enter a room</p>
+  <p>Request Access to a Building/Room</p>
 
    <form action="code/" method="POST">
-   	{% csrf_token %} 
-   	<input type="text" placeholder="NetID" name="id">
-    <input type="text" placeholder="Location" name="location">
-    <input type="text" placeholder="For how long" name="time">
-   <input type="submit"  value="Enter Class Room" />
- </form>
-
+       {% csrf_token %}
+       <input type="text" placeholder="NetID" name="id">
+       <select name="location">
+           <option  name = "loc" value="kimmel">Kimmel</option>
+           <option  value="silver">Silver</option>
+           <option value="stern">Stern</option>
+           <option   value="bobst">Bobstbae</option>
+           <option   value="courant">Courant</option>
+       </select>
+       <input type="text" placeholder="Minutes" name="time">
+       <input type="submit" value="Request Access"/>
+   </form>
 </div>
    
 {% endblock %}

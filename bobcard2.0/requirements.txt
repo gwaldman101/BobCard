@@ -3,3 +3,4 @@ wheel==0.32.3
 gunicorn==19.9.0
 psycopg2==2.7.6.1
 django-qr-code
+django-background-tasks
