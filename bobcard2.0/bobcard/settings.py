@@ -121,7 +121,7 @@ CACHES = {
     }
 }
 
-CACHE_TTL = 60 * 2
+CACHE_TTL = 60 * 1
 
 
 AUTH_PASSWORD_VALIDATORS = [

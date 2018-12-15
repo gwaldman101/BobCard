@@ -16,10 +16,12 @@ from django.shortcuts import render
 from .models import Student, StudentEntry, Location
 from django.views import generic
 from django import forms
+from django.utils import timezone
 from django.shortcuts import get_object_or_404
 import datetime
 from django.shortcuts import render
 from qr_code.qrcode.utils import QRCodeOptions
+from django.shortcuts import redirect
 # Create your views here.
 def index(request):
 
@@ -34,11 +36,11 @@ def index(request):
      })
 
 @cache_page(CACHE_TTL)
-def authorize(request, location,net_id ):
+def authorize(request, location_id,netid ):
 
     print("authorizing")
 
-    comp_key = net_id + location
+    comp_key = netid + str(location_id)
 
     if comp_key in cache:
         print('Found in cache')
@@ -46,8 +48,8 @@ def authorize(request, location,net_id ):
     else:
         already_authorized = StudentEntry.objects.filter(net_id=netid, requested_location_id = location_id).exists()
 
-  
         if(already_authorized):
+            entry = StudentEntry.objects.get(net_id=netid, requested_location_id = location_id)
             print('Found in database but not in cache')
             cache.set(comp_key, entry, timeout=CACHE_TTL)
             return render(request, 'success.html')
@@ -110,12 +112,12 @@ def request_access(request):
     delete_entry(student_entry.net_id.net_id,schedule=end )
     loc_id =location.location_id
     
-    comp_key = name + request.POST.get("location")
+    comp_key = name + str(loc_id) #request.POST.get("location")
     comp_value = name + " is authorized"
     cache.set(comp_key, comp_value, timeout=CACHE_TTL)
     print('added key:value to cache')
 
-    name = "http://127.0.0.1:8000/home/authorize/" + str(loc_id) +  "/" + str(name)
+    name = "http://35.237.10.156:8000/home/authorize/" + str(loc_id) +  "/" + str(name)
     print(name)
     return render(request,
      'request_access.html',context={
